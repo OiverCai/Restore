@@ -13,6 +13,14 @@ builder.Services.AddDbContext<StoreContext>(opt =>{
     opt.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
+var  MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+builder.Services.AddCors(opt =>{
+    opt.AddPolicy( MyAllowSpecificOrigins, policy =>{
+        policy.WithOrigins("http://localhost:3000")
+               .AllowAnyHeader().AllowAnyMethod();
+    });
+});
+
 var app = builder.Build();
 
 using var scope = app.Services.CreateScope();
@@ -37,6 +45,9 @@ if (app.Environment.IsDevelopment())
 }
 
 // app.UseHttpsRedirection();
+
+app.UseRouting();
+ app.UseCors(MyAllowSpecificOrigins);
 
 app.UseAuthorization();
 
