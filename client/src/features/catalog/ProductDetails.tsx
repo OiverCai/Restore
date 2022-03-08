@@ -1,7 +1,9 @@
 import { Divider, Grid, Table, TableBody, TableCell, TableContainer, TableRow, Typography } from "@mui/material";
-import axios from "axios";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import agent from "../../app/api/agent";
+import NotFound from "../../app/errors/NotFound";
+import LoadingComponent from "../../app/layout/LoadingComponent";
 import { Product } from "../../app/models/products";
 
 export default function ProductDetails() {
@@ -10,18 +12,16 @@ export default function ProductDetails() {
     const [loading, setLoading] = useState(true);
 
     useEffect( () => {
-         axios.get(`http://localhost:5213/api/Products/${id}`)
-                           .then(response => {setProduct(response.data);})
+         agent.Catalog.details(parseInt(id || "1"))
+                           .then(response => {setProduct(response);})//response.data 要改成response 因为axios包装过了
                            .catch(error=> {console.log(error);})
-                           .finally(() => {setLoading(false);});//最后要记得让loading结束
+                           .finally(() => {setLoading(false) });//最后要记得让loading结束
     }, [id])//只有id变化时才会执行,但其实这个页面内不会变id
 
-    if(loading) {
-        return <Typography>Loading...</Typography>
-    }
+    if(loading) return <LoadingComponent message="Loading product..."></LoadingComponent>
 
     if(!prodcut) {
-        return <Typography>Product not found</Typography>
+        return <NotFound />;
     }
 
     return (
@@ -61,7 +61,6 @@ export default function ProductDetails() {
                 </TableContainer>
             </Grid>
         </Grid>
-
         
     )
 };

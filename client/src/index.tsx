@@ -3,14 +3,14 @@ import ReactDOM from 'react-dom';
 import './app/layout/styles.css';
 import App from './app/layout/App';
 import reportWebVitals from './reportWebVitals';
-import { BrowserRouter } from 'react-router-dom';
+import {myHistory} from './app/customRouter/history';
+import {unstable_HistoryRouter as HistoryRouter} from 'react-router-dom'
 
 ReactDOM.render(
   <React.StrictMode>
-    <BrowserRouter>
+    <HistoryRouter history={myHistory}>
     <App />
-    </BrowserRouter>
-    
+    </HistoryRouter>
   </React.StrictMode>,
   document.getElementById('root')
 );

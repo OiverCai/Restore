@@ -10,6 +10,10 @@ import HomePage from "../../features/home/HomePage";
 import ProductDetails from "../../features/catalog/ProductDetails";
 import AboutPage from "../../features/about/AboutPage";
 import ContactPage from "../../features/contact/ContactPage";
+import { ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
+import ServerError from "../errors/ServerError";
+import NotFound from "../errors/NotFound";
 
 function App() {
   const [darkMode, setDarkMode] = useState(false);//注意这里不能写useState('light')  mode : 不能将类型“string”分配给类型“PaletteMode | undefined”。
@@ -30,6 +34,7 @@ function App() {
 
   return (
     <ThemeProvider theme={theme}>
+      <ToastContainer theme='colored' position='bottom-right' hideProgressBar ></ToastContainer>
       <CssBaseline></CssBaseline>
       <Header darkMode={darkMode}  handleDarkMode={handleDarkMode}></Header>
       <Container>
@@ -40,6 +45,9 @@ function App() {
           <Route path='/catalog/:id'  element={<ProductDetails />}  />
           <Route path='/about'  element={<AboutPage />}  />
           <Route path='/contact'  element={<ContactPage />}  />
+          <Route path='/server-error'  element={<ServerError />}  />
+          <Route path='*'  element={<NotFound />}  />
+          {/* 没有符合的就自动到notfound组件了 */}
         </Routes>
       </Container>
     </ThemeProvider>

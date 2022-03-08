@@ -6,9 +6,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class ProductsController : ControllerBase //依赖注入 get our store context inside here so that
+    // [ApiController]
+    // [Route("api/[controller]")] 因为引入了 BaseApiController 自带了属性,所以继承的时候不用再写了
+    public class ProductsController : BaseApiController //依赖注入 get our store context inside here so that
 // we've got access to the products table in our database.
     {
 //         Now what we want to do in order to use
