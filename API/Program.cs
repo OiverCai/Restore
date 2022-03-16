@@ -17,8 +17,11 @@ builder.Services.AddDbContext<StoreContext>(opt =>{
 var  MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 builder.Services.AddCors(opt =>{
     opt.AddPolicy( MyAllowSpecificOrigins, policy =>{
-        policy.WithOrigins("http://localhost:3000")
-               .AllowAnyHeader().AllowAnyMethod();
+        policy.AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials()
+               .WithOrigins("http://localhost:3000")
+               ;
     });
 });
 

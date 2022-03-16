@@ -1,64 +1,122 @@
-import { Divider, Grid, Table, TableBody, TableCell, TableContainer, TableRow, Typography } from "@mui/material";
+import { LoadingButton } from "@mui/lab";
+import { Divider, Grid, Table, TableBody, TableCell, TableContainer, TableRow, TextField, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import agent from "../../app/api/agent";
+import { useStoreContext } from "../../app/context/StoreContext";
 import NotFound from "../../app/errors/NotFound";
 import LoadingComponent from "../../app/layout/LoadingComponent";
 import { Product } from "../../app/models/products";
 
 export default function ProductDetails() {
+    const {basket,setBasket,removeItem} = useStoreContext();
     const {id} = useParams<{id: string}>();
-    const [prodcut,setProduct] = useState<Product | null>(null);
+    const [product,setProduct] = useState<Product | null>(null);
     const [loading, setLoading] = useState(true);
+    const [quantity,setQuantity] = useState(0);
+    const [submitting , setSubmitting] = useState(false);
+    const item = basket?.items.find(i => i.productId === product?.id)
 
     useEffect( () => {
+        if(item) setQuantity(item.quantity);
          agent.Catalog.details(parseInt(id || "1"))
                            .then(response => {setProduct(response);})//response.data 要改成response 因为axios包装过了
                            .catch(error=> {console.log(error);})
                            .finally(() => {setLoading(false) });//最后要记得让loading结束
-    }, [id])//只有id变化时才会执行,但其实这个页面内不会变id
+    }, [id,item])//只有id变化时才会执行,但其实这个页面内不会变id
+
+    function handleUpdateCart() {
+        setSubmitting(true);
+        if (!item || quantity > item.quantity) {
+            const updatedQuantity = item ? quantity - item.quantity : quantity;
+            agent.Basket.addItem(product?.id!, updatedQuantity)
+                .then(basket => setBasket(basket))
+                .catch(error => console.log(error))
+                .finally(() => setSubmitting(false));
+        } else {
+            const updatedQuantity = item.quantity - quantity;
+            agent.Basket.removeItem(product?.id!, updatedQuantity)
+                .then(() => removeItem(product?.id!, updatedQuantity))
+                .catch(error => console.log(error))
+                .finally(() => setSubmitting(false));
+        }
+    }
+
+    function handleInputChange(event: any) {
+        event.preventDefault();
+        if (event.target.value >= 0) {
+            setQuantity(parseInt(event.target.value));//string 转过来的number
+        }
+    }
 
     if(loading) return <LoadingComponent message="Loading product..."></LoadingComponent>
 
-    if(!prodcut) {
+    if(!product) {
         return <NotFound />;
     }
 
     return (
         <Grid container spacing={6}>
             <Grid item xs={6}>
-                <img src={prodcut.pictureUrl} alt={prodcut.name} style={{width: '100%'}}/>
+                <img src={product.pictureUrl} alt={product.name} style={{width: '100%'}}/>
             </Grid>
             <Grid item xs={6}>
-               <Typography variant="h3">{prodcut.name}</Typography>
+               <Typography variant="h3">{product.name}</Typography>
                <Divider/>
-               <Typography variant="h4" color="secondary">¥{(prodcut.price / 100).toFixed(2)}</Typography>
+               <Typography variant="h4" color="secondary">¥{(product.price / 100).toFixed(2)}</Typography>
                 <TableContainer>
                     <Table>
                         <TableBody>
                             <TableRow>
                                 <TableCell>Name</TableCell>
-                                <TableCell>{prodcut.name}</TableCell>
+                                <TableCell>{product.name}</TableCell>
                             </TableRow>
                             <TableRow>
                                 <TableCell>Description</TableCell>
-                                <TableCell>{prodcut.description}</TableCell>
+                                <TableCell>{product.description}</TableCell>
                             </TableRow>
                             <TableRow>
                                 <TableCell>Type</TableCell>
-                                <TableCell>{prodcut.type}</TableCell>
+                                <TableCell>{product.type}</TableCell>
                             </TableRow>
                             <TableRow>
                                 <TableCell>Brand</TableCell>
-                                <TableCell>{prodcut.brand}</TableCell>
+                                <TableCell>{product.brand}</TableCell>
                             </TableRow>
                             <TableRow>
                                 <TableCell>Quantity in stock</TableCell>
-                                <TableCell>{prodcut.quantityInStock}</TableCell>
+                                <TableCell>{product.quantityInStock}</TableCell>
                             </TableRow>
                         </TableBody>
                     </Table>
                 </TableContainer>
+
+                <Grid container spacing={2}>
+                    <Grid item xs={6}>
+                        <TextField 
+                            variant='outlined'
+                            type='number'
+                            label='Quantity in Cart'
+                            fullWidth
+                            value={quantity}
+                            onChange={handleInputChange}
+                        />
+                    </Grid>
+                    <Grid item xs={6}>
+                        <LoadingButton
+                            disabled={item?.quantity === quantity || !item && quantity === 0}
+                            loading={submitting}
+                            onClick={handleUpdateCart}
+                            sx={{height: '55px'}}
+                            color='primary'
+                            size='large'
+                            variant='contained'
+                            fullWidth
+                        >
+                            {item ? 'Update Quantity' : 'Add to Cart'}
+                        </LoadingButton>
+                    </Grid>
+                </Grid>
             </Grid>
         </Grid>
         

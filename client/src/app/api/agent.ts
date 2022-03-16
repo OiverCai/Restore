@@ -3,6 +3,7 @@ import { toast } from "react-toastify"
 import {myHistory} from "../customRouter/history"
 
 axios.defaults.baseURL = "http://localhost:5213/api/"
+axios.defaults.withCredentials = true; //客户端也要允许cookie 从服务器传过来
 
 const responseBody = (Response: AxiosResponse) => Response.data
 
@@ -14,7 +15,8 @@ axios.interceptors.response.use(
   return response;
  } ,
   (error: AxiosError) => {
-    console.log(error) 
+    // console.log(error) 
+    console.log(error.toJSON()!) 
     const { data, status } = error.response! //后面加!可以确保error.response有值 ts有时候太严格了 但是情况很复杂 而且此时我们可以肯定的是error.response有值
     switch (status) {
       case 400:
@@ -67,9 +69,21 @@ const TestErrors = {
   getValidationError: () => requests.get("Buggy/validation-error"),
 }
 
+const Basket = {
+//   We don't need to send up any parameters  
+// because it's going to be our cookie that is sent up automatically
+// We don't need to do anything special to
+// get ourcookie to go up to the APl and we can simply say request...
+    get : ()=> requests.get("basket"),
+    addItem : (productId:number ,  quantity = 1)=> requests.post(`basket?productId=${productId}&quantity=${quantity}`,{}),
+    removeItem : (productId:number ,  quantity = 1)=> requests.del(`basket?productId=${productId}&quantity=${quantity}`),
+
+}
+
 const agent = {
   Catalog,
   TestErrors,
+  Basket
 }
 // ES6中，当对象中的key：value键值对，如果value是个变量/函数，此时省略key，key的值就是变量名/函数名。
 
