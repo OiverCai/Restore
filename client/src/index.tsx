@@ -5,14 +5,15 @@ import App from './app/layout/App';
 import reportWebVitals from './reportWebVitals';
 import {myHistory} from './app/customRouter/history';
 import {unstable_HistoryRouter as HistoryRouter} from 'react-router-dom'
-import { StoreProvider } from './app/context/StoreContext';
+import { Provider } from 'react-redux';
+import { store } from './app/store/configureStore';
 
 ReactDOM.render(
   <React.StrictMode>
     <HistoryRouter history={myHistory}>
-      <StoreProvider>
-         <App />
-      </StoreProvider>
+      <Provider store={store}>
+        <App />
+      </Provider>
     </HistoryRouter>
   </React.StrictMode>,
   document.getElementById('root')

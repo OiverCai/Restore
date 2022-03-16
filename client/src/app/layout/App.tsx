@@ -4,6 +4,8 @@ import Header from "./Header"
 import { Container, createTheme, CssBaseline } from "@mui/material"
 import { ThemeProvider } from "@emotion/react"
 import { useEffect, useState } from "react";
+import { useAppDispatch } from "../store/configureStore";
+import { setBasket } from "../../features/basket/basketSlice";
 
 import { Route, Routes } from "react-router-dom";
 import HomePage from "../../features/home/HomePage";
@@ -15,21 +17,23 @@ import 'react-toastify/dist/ReactToastify.css';
 import ServerError from "../errors/ServerError";
 import NotFound from "../errors/NotFound";
 import BasketPage from "../../features/basket/BasketPage";
-import { useStoreContext } from "../context/StoreContext";
+// import { useStoreContext } from "../context/StoreContext";
 import { getCookie } from "../util/util";
 import agent from "../api/agent";
 import LoadingComponent from "./LoadingComponent";
 import CheckoutPage from "../../features/checkout/CheckoutPage";
 
 function App() {
-  const {setBasket} = useStoreContext();
+  // const {setBasket} = useStoreContext();
+  const dispatch = useAppDispatch();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const buyerId = getCookie('buyerId')
     if(buyerId){
       agent.Basket.get()
-                  .then((basket)=> setBasket(basket))
+                  // .then((basket)=> setBasket(basket))
+                  .then(basket => dispatch(setBasket(basket)))
                   .catch((error) => console.log(error))
                   .finally(() => setLoading(false))
     }
@@ -37,7 +41,7 @@ function App() {
       setLoading(false)
     }
   }
-  ,[setBasket])
+  ,[dispatch])
   //如果不写依赖会显示 React Hook useEffect has a missing dependency: 'setBasket'. Either include it or remove the dependency array
 
   const [darkMode, setDarkMode] = useState(false);//注意这里不能写useState('light')  mode : 不能将类型“string”分配给类型“PaletteMode | undefined”。

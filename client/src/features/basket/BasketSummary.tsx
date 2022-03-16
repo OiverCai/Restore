@@ -1,9 +1,11 @@
 import { TableContainer, Paper, Table, TableBody, TableRow, TableCell } from "@mui/material";
-import { useStoreContext } from "../../app/context/StoreContext";
+// import { useStoreContext } from "../../app/context/StoreContext";
+import { useAppSelector } from "../../app/store/configureStore";
 import { currencyFormat } from "../../app/util/util";
 
 export default function BasketSummary() {
-    const {basket} = useStoreContext();
+    // const {basket} = useStoreContext();
+    const {basket} = useAppSelector(state => state.basket);
     const subtotal = basket?.items.reduce((sum, item) => sum + (item.quantity * item.price), 0) ?? 0; //前面的是null或者undefined，按照0输出
     const deliveryFee = subtotal > 10000 ? 0 : 100;
 
